@@ -8,7 +8,7 @@ from django.contrib.auth import login, logout
 from .tokens import TokenGenerator
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
-from .models import User, Post, Profile
+from .models import User, Post
 from django.core.paginator import Paginator
 from .funcs import get_user_by_token
 
@@ -152,12 +152,7 @@ def profile(request, user_id):
         not_owner = True
     else:
         not_owner = False
-    try:
-        profile = Profile.objects.get(user=user)
-    except Profile.DoesNotExist:
-        profile = Profile(user=user)
-        profile.save()
-    if request.user not in profile.followers.all():
+    if request.user not in user.followers.all():
         not_following = True
     else:
         not_following = False
@@ -185,16 +180,10 @@ def follow(request, user_id):
     not_owner = True
 
     # add the request user as a follower
-    profile = Profile.objects.get(user=user)
-    profile.followers.add(request.user)
+    user.followers.add(request.user)
 
     # add the user to the request user's following
-    try:
-        request_user_profile = Profile.objects.get(user=request.user)
-    except Profile.DoesNotExist:
-        request_user_profile = Profile(user=request.user)
-        request_user_profile.save()
-    request_user_profile.followings.add(user)
+    request.user.followings.add(user)
     not_following = False
 
     posts = Post.objects.filter(user=user).order_by("-id")
@@ -209,7 +198,6 @@ def follow(request, user_id):
             "person": user,
             "not_owner": not_owner,
             "not_following": not_following,
-            "profile": profile,
             "page_obj": page_obj,
         },
     )
@@ -220,16 +208,10 @@ def unfollow(request, user_id):
     not_owner = True
 
     # add the request user as a follower
-    profile = Profile.objects.get(user=user)
-    profile.followers.remove(request.user)
+    user.followers.remove(request.user)
 
     # add the user to the request user's following
-    try:
-        request_user_profile = Profile.objects.get(user=request.user)
-    except Profile.DoesNotExist:
-        request_user_profile = Profile(user=request.user)
-        request_user_profile.save()
-    request_user_profile.followings.remove(user)
+    request.user.followings.remove(user)
     not_following = True
 
     posts = Post.objects.filter(user=user).order_by("-id")
@@ -244,7 +226,6 @@ def unfollow(request, user_id):
             "person": user,
             "not_owner": not_owner,
             "not_following": not_following,
-            "profile": profile,
             "page_obj": page_obj,
         },
     )
@@ -252,18 +233,17 @@ def unfollow(request, user_id):
 
 def following(request):
     user = request.user
-    profile = Profile.objects.get(user=user)
-    if profile.followings.all().count() == 0:
+    if user.followings.all().count() == 0:
         page_obj = None
     else:
-        posts = Post.objects.filter(user__in=profile.followings.all()).order_by("-id")
+        posts = Post.objects.filter(user__in=user.followings.all()).order_by("-id")
         p = Paginator(posts, 10)
         page_number = request.GET.get("page")
         page_obj = p.get_page(page_number)
     return render(
         request,
         "following.html",
-        {"user": user, "profile": profile, "page_obj": page_obj},
+        {"user": user, "page_obj": page_obj},
     )
 
 

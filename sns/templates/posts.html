@@ -1,0 +1,37 @@
+{% for post in page_obj %}
+<div class="post">
+  <b><a href="{% url 'profile' post.user.id %}">{{ post.user.username}}</a></b>
+  <small>{{ post.time|date:"H:i M j, Y" }}</small>
+
+  {% if user.is_authenticated and user == post.user %}
+  <button class="edit_post_btn" data-post-id="{{ post.id }}" data-edit-url="{% url 'edit' 0 %}">Edit</button>
+  {% endif %}
+
+  <div class="post_content">{{ post.content }}</div>
+
+  <small>
+  {% if user.is_authenticated %}
+    <button class="toggle_like_btn" data-post-id="{{ post.id }}" data-like-url="{% url 'toggle_like' 0 %}">
+    {% if user in post.likers.all %} Unlike
+    {% else %} Like
+    {% endif %}</button>
+  {% endif %}  
+  <span class="like_count">{{ post.likers.count }}</span> Like
+  </small>
+
+</div>
+<hr />
+
+{% empty %}
+  <h1 id="no_post">No post yet.</h1>
+{% endfor %}
+
+{% if page_obj.has_previous %}
+<button class="switch_page">
+  <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+</button>
+{% endif %}
+
+{% if page_obj.has_next %}
+  <button class="switch_page"><a href="?page={{ page_obj.next_page_number }}">Next</a></button>
+{% endif %}

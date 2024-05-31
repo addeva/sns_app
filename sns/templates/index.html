@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div id="screen">
+
+  {% if user.is_authenticated %}
+  <form id="textarea_contianer" action="{% url 'index' %}" method="post">
+    {% csrf_token %}
+    <textarea name="content" placeholder="Share your thought."></textarea>
+    <button id="submit_button" type="submit">Post</button>
+  </form>
+  {% endif %}
+
+  {% include "posts.html" %}
+
+</div>
+{% endblock %}

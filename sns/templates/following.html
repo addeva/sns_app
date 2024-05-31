@@ -1,0 +1,36 @@
+{% extends "network/layout.html" %}
+
+{% block title %}Following{% endblock %}
+
+{% block body %}
+    <div id="screen">
+        {% if page_obj %}
+            {% for post in page_obj %}
+                <div class="post">
+                    <b><a href="{% url 'profile' post.user.id %}">{{ post.user.username}}</a></b> <small>{{ post.time|date:"H:i M j, Y" }}</small><br>
+                    <p class="post_content">{{ post.content }}</p>
+                    <small>
+                        {% if user.is_authenticated %}
+                            {% if user in post.likers.all %}
+                                <button class="toggle_like_btn" data-post-id={{ post.id }}>Unlike</button>
+                            {% else %}
+                                <button class="toggle_like_btn" data-post-id={{ post.id }}>Like</button>
+                            {% endif %}
+                        {% endif %} 
+                        <span class="like_count">{{ post.likers.count }}</span> Likes
+                    </small>
+                </div>
+                <hr>
+            {% endfor %}
+            {% if page_obj.has_previous %}
+                <button class="switch_page"><a href="?page={{ page_obj.previous_page_number }}">Previous</a></button>
+            {% endif %}
+
+            {% if page_obj.has_next %}
+                <button class="switch_page"><a href="?page={{ page_obj.next_page_number }}">Next</a></button>
+            {% endif %}
+        {% else %}
+            <h3 id="no_post"> No following yet.</h3>   
+        {% endif %}
+    </div>
+{% endblock %}

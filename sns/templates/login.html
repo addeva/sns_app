@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block body %}
+
+  <form action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Log In</button>
+    
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+  </form>
+
+  <div>
+    Forgot password? <a href="{% url 'get_reset_password_email' %}">Reset Password</a>
+  </div>
+  
+  <div>
+    Do not have an account yet? <a href="{% url 'signup' %}">Sign Up</a>
+  </div>
+
+{% endblock %}

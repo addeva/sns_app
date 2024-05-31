@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ person.username }}{% endblock %}
+
+{% block body %}
+    <div id="screen">
+        <div id="user_info_container">
+            <h4>{{ person.username }}</h4>
+            <div id="numbers_container">
+                {% if user.is_authenticated %}
+                    {% if not_owner %}
+                        {% if not_following %}
+                            <button id="toggle_follow_btn"><a href="{% url 'follow' person.id %}">Follow</a></button>
+                        {% else %}
+                            <button id="toggle_follow_btn"><a href="{% url 'unfollow' person.id %}">Unfollow</a></button>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+                <div id="num_followers">
+                    <h5 class="info_num">{{ profile.followers.count }}</h5> <span>followers</span>
+                </div>
+                <div id="num_followings">
+                    <h5 class="info_num">{{ profile.followings.count }}</h5> <span>following</span>
+                </div>
+            </div>
+        </div>
+        {% include "posts.html" %}
+    </div>
+{% endblock %}
